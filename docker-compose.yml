@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  maildump:
+    image: jivanyatra/maildump:latest
+    container_name: "maildump"
+    environment:
+      # If you only want the emails in memory, comment out this section
+      - DBFILE=1
+    volumes:
+      # If you only want the emails in memory, comment out this section
+      # You can initialize an empty db with this command:
+      # > sqlite3 maildump.db "VACUUM;"
+      # - /opt/test_emails/maildump.db:/data/maildump.db
+      - /home/jivanyatra/docker_images/MailDump/temp.db:/data/maildump.db
+    ports:
+      - 1025:1025 # smtp port
+      - 8087:1080 # web interface port
