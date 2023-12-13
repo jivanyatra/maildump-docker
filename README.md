@@ -3,7 +3,7 @@ These are Docker files for [ThiefMaster/maildump](https://github.com/ThiefMaster
 
 I ***ONLY*** built the Docker images and created the sample files here! All credit for this wonderful and useful tool goes to ThiefMaster.
 
-### Get the Docker images on Docker Hub: [jivanyatra/maildump](https://hub.docker.com/repository/docker/jivanyatra/maildump/general)
+### Get the Docker images on Docker Hub: [jivanyatra/maildump](https://hub.docker.com/r/jivanyatra/maildump)
 
 ## Use Cases
 
