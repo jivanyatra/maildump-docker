@@ -79,3 +79,28 @@ Admittedly, it's ugly and less than ideal. I suppose I could compile the depende
 I could also do the compilation/build into a venv and then copy the venv over and add it to a path, but venvs aren't recommended for docker containers and I don't know the reasoning well enough to ignore that.
 
 My approach works, got the job done relatively quickly and easily, and likely doesn't need updating/simplying for the future (because I doubt we'll see significant updates upstream). And, it was a nice small project to get a better understanding of docker multiarch builds and how docker layers images.
+
+
+### Dev Notes
+
+Commands for running temp container amd64:
+`docker run --rm --name builder64 -v ./:/app --workdir /app -it python:3.12-slim bash`
+
+and for arm64:
+`docker run --rm --platform=linux/arm64/v8 --name temp_arm64 -v ./:/app -it arm64v8/python:3.12-slim bash`
+
+
+To install arm64 capability, install qemu-user binfmt-support packages on host, then run:
+`docker run --rm --privileged multiarch/qemu-user-static --reset -p yes`
+(This step will execute the registering scripts)
+
+Then you can test with:
+`docker run --platform=linux/arm64/v8 --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment #aarch64`
+
+* glibc-compiled python wheels DO NOT work on libmusl distros, so compile in bookworm-slim for standard and on alpine (? is there a better image?) for that. Can do that also for arm64.
+
+* look into how to do python builds in uv, compiling into bytecode: https://github.com/astral-sh/uv-docker-example/blob/main/multistage.Dockerfile
+
+* if/when using pip, look into added the right flags/options to ensure it works on a dist (there's some kind of option for nobuild target or something) - that way we get no missing dependencies.
+
+* OR check for deps and install them before building wheel??
