@@ -97,6 +97,37 @@ To install arm64 capability, install qemu-user binfmt-support packages on host, 
 Then you can test with:
 `docker run --platform=linux/arm64/v8 --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment #aarch64`
 
+
+To build a container with just the stage 1 build dependencies (non- npm/setup.py):
+```bash
+GIT_AUTH_TOKEN=$(cat ~/path/to/token) \
+docker buildx build \
+--secret id=GIT_AUTH_TOKEN \
+--no-cache \
+-f Dockerfile.builddeps \
+-t maildump_build_deps:latest \
+.
+
+GIT_AUTH_TOKEN=$(cat ~/path/to/token) docker buildx build --secret id=GIT_AUTH_TOKEN --no-cache -f Dockerfile.builddeps -t maildump_build_deps:latest .
+```
+
+
+```bash
+GIT_AUTH_TOKEN=$(cat ~/path/to/token) \
+docker buildx build \
+--secret id=GIT_AUTH_TOKEN \
+--no-cache \
+-f Dockerfile.temp_branch \
+-t maildump_temp:test \
+.
+
+GIT_AUTH_TOKEN=$(cat ~/path/to/token) docker buildx build --secret id=GIT_AUTH_TOKEN --no-cache -f Dockerfile.temp_branch -t maildump_temp:test .
+```
+
+Then to test:
+`docker run --rm --name maildump_testing -p 8000:1080 -p 1025:1025 maildump_temp:test`
+
+
 * glibc-compiled python wheels DO NOT work on libmusl distros, so compile in bookworm-slim for standard and on alpine (? is there a better image?) for that. Can do that also for arm64.
 
 * look into how to do python builds in uv, compiling into bytecode: https://github.com/astral-sh/uv-docker-example/blob/main/multistage.Dockerfile
