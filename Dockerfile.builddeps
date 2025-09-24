@@ -1,0 +1,37 @@
+#FROM python:3.9-alpine as base
+#RUN mkdir /root/.local/
+FROM python:3.12-slim AS builder
+WORKDIR /app
+
+# Install npm and node dependencies for the frontend build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+#    gh \
+#    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# clone repo
+# COPY gh.txt .
+# RUN gh auth login --with-token < gh.txt && \
+#    gh repo clone jivanyatra/maildump && \
+#    cd maildump && \
+#    git fetch origin temp_local_deploy && \
+#    git checkout temp_local_deploy
+
+# instead of the above, we can use git add with a repo url fragment
+# just do GIT_AUTH_TOKEN=$(cat gh.txt)
+ADD https://github.com/jivanyatra/maildump.git#temp_local_deploy /app/maildump
+
+# build wheel
+RUN pip install --no-cache-dir setuptools
+WORKDIR /app/maildump
+
+# RUN ./make-release.sh
+
+# FROM python:3.12-slim AS final
+# WORKDIR /app
+# COPY --from=builder /app/maildump/dist/*.whl /app/
+# COPY ./start.sh /app/
+# RUN pip install --no-cache-dir /app/*.whl
+# ENTRYPOINT /bin/sh /app/start.sh
