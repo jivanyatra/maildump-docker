@@ -7,7 +7,7 @@
 
 # DBFILE
 cd /app
-ls -al
+
 WITHDB="maildump -f -n --smtp-ip 0.0.0.0 --http-ip 0.0.0.0 --smtp-port 1025 --http-port 1080 --db /data/maildump.db"
 SANSDB="maildump -f -n --smtp-ip 0.0.0.0 --http-ip 0.0.0.0 --smtp-port 1025 --http-port 1080"
 if [ -n "$DBFILE" ] 
