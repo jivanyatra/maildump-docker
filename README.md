@@ -87,15 +87,15 @@ Commands for running temp container amd64:
 `docker run --rm --name builder64 -v ./:/app --workdir /app -it python:3.12-slim bash`
 
 and for arm64:
-`docker run --rm --platform=linux/arm64/v8 --name temp_arm64 -v ./:/app -it arm64v8/python:3.12-slim bash`
+`docker run --rm --platform linux/arm64 --name temp_arm64 -v ./:/app -it arm64v8/python:3.12-slim bash`
 
 
 To install arm64 capability, install qemu-user binfmt-support packages on host, then run:
 `docker run --rm --privileged multiarch/qemu-user-static --reset -p yes`
-(This step will execute the registering scripts)
+(This step will execute the registering scripts, and needs to be done after every reboot)
 
 Then you can test with:
-`docker run --platform=linux/arm64/v8 --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment #aarch64`
+`docker run --platform linux/arm64 --rm -t arm64v8/ubuntu uname -m # Testing the emulation environment #aarch64`
 
 
 To build a container with just the stage 1 build dependencies (non- npm/setup.py):
@@ -111,6 +111,7 @@ docker buildx build \
 GIT_AUTH_TOKEN=$(cat ~/path/to/token) docker buildx build --secret id=GIT_AUTH_TOKEN --no-cache -f Dockerfile.builddeps -t maildump_build_deps:latest .
 ```
 
+Check [the build script](./build_temp_branch.sh) for how to build different architectures, building manifests combining multiple architectures, pushing, etc.
 
 ```bash
 GIT_AUTH_TOKEN=$(cat ~/path/to/token) \
