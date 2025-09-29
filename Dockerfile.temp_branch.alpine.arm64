@@ -1,0 +1,26 @@
+FROM arm64v8/python:3.12-alpine AS builder
+WORKDIR /app
+
+# Install npm and node dependencies for the frontend build
+RUN apk update && apk add --no-cache \
+    nodejs \
+    npm \
+    github-cli \
+    git \
+    bash
+
+# build wheel
+RUN pip install --no-cache-dir setuptools
+# # just do GIT_AUTH_TOKEN=$(cat gh.txt) docker buildx build --secret id=GIT_AUTH_TOKEN -f path.to.file -t tag .
+ADD https://github.com/jivanyatra/maildump.git#temp_local_deploy /app/maildump
+
+WORKDIR /app/maildump
+RUN npm ci
+RUN bash ./make-release.sh
+
+FROM arm64v8/python:3.12-alpine AS final
+WORKDIR /app
+COPY --from=builder /app/maildump/dist/*.whl /app/
+COPY ./start.sh /app/
+RUN pip install --no-cache-dir /app/*.whl
+ENTRYPOINT /bin/sh /app/start.sh

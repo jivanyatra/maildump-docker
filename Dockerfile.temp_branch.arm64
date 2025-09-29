@@ -1,0 +1,28 @@
+FROM arm64v8/python:3.12-slim AS builder
+WORKDIR /app
+
+# Install npm and node dependencies for the frontend build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir setuptools
+# # just do GIT_AUTH_TOKEN=$(cat gh.txt) docker buildx build --secret id=GIT_AUTH_TOKEN -f path.to.file -t tag .
+ADD https://github.com/jivanyatra/maildump.git#temp_local_deploy /app/maildump
+
+# use line below if you've create Dockerfile.builddeps
+#FROM maildump_build_deps:latest as builder
+
+WORKDIR /app/maildump
+
+# install front-end deps then build python package
+RUN npm ci
+RUN ./make-release.sh
+
+FROM arm64v8/python:3.12-slim AS final
+WORKDIR /app
+COPY --from=builder /app/maildump/dist/*.whl /app/
+COPY ./start.sh /app/
+RUN pip install --no-cache-dir /app/*.whl
+ENTRYPOINT /bin/sh /app/start.sh
